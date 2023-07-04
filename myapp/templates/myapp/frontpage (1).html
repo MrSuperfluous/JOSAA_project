@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Front Page</title>
+  <link rel="stylesheet" type="text/css" href="style_.css">
+</head>
+<body>
+  <h1>JOSAA Data Analysis Portal</h1>
+  
+  <form class="list" id="your-form-id"  method="post" action="{% url 'front_choice' %}">
+    {% csrf_token %}
+    <div>
+      <label class="labels" for="id_institute">Institute:</label>
+      <select class="list" name="insti" id="id_insti_choice" onchange="updateAcademicProgram(this)">
+        <option value="">Select</option>
+        {% for inst in form.insti.field.queryset %}
+          <option value="{{ inst.pk}}">{{ inst.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div>
+      <label class="labels" for="id_academic">Academic Program:</label>
+      <select class="list" name="acad" id="id_acad_choice">
+        <option value="">Select</option>
+        {% if form.insti.value %}
+          {% for acad in form.insti.value.academic_programs.all %}
+            <option value="{{ acad.pk }}">{{ acad.name }}</option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+    
+    
+    
+    
+    <div>
+      <label class="labels" for="id_gender">Gender:</label>
+      <select class="list" name="gender" id="id_gender_choice">
+        <option value="">Select</option>
+        {% for gender in form.gender.field.queryset %}
+          <option value="{{ gender.pk }}">{{ gender.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div>
+      <label class="labels" for="id_seat">Seat Type:</label>
+      <select class="list" name="seat" id="id_seat_choice">
+        <option value="">Select</option>
+        {% for seat in form.seat.field.queryset %}
+          <option value="{{ seat.pk }}">{{ seat.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div>
+      <label class="labels" for="id_round_no">Round Number:</label>
+      <select class="list" name="round_no" id="id_round_no_choice">
+        <option value="">Select</option>
+        {% for choice in form.round_no.field.choices %}
+          <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <div>
+      <label class="labels" for="id_year">Year:</label>
+      <select class="list-last" name="year" id="id_year_choice">
+        <option value="">Select</option>
+        {% for choice in form.year.field.choices %}
+          <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    
+    <button class="submit-button" type="submit">Submit</button>
+  </form>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    function updateAcademicProgram(selectElement) {
+      var selectedOption = selectElement.options[selectElement.selectedIndex];
+      var selectedValue = selectedOption.value;
+      var selectedInstitute = {
+        pk: selectedValue,
+        name: selectedOption.text
+      };
+  
+      document.getElementById('id_selected_academic_program').value = selectedValue;
+  
+      // Serialize the selected institute object to JSON
+      var jsonData = JSON.stringify(selectedInstitute);
+  
+      // Send the form data via AJAX
+      $.ajax({
+        url: '{% url 'front_choice' %}',
+        type: 'POST',
+        data: {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          insti: jsonData
+        },
+        success: function(response) {
+          // Handle the success response
+        },
+        error: function(xhr, textStatus, error) {
+          // Handle the error
+        }
+      });
+    }
+  </script>
+  </body>
+</html>

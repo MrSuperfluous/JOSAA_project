@@ -4,14 +4,72 @@
     <title>Graph</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-legend-custom@0.6.5/dist/chartjs-plugin-legend-custom.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <style>
+    #graphContainer {
+        height: 1200px; /* Set the width for the graph */
+        max-height: 1800px; /* Set the maximum width for the graph */
+        overflow-y:scroll;
+    }
+    
+    .container {
+        width: 80vw; /* Set the width for the container */
+        max-width: 290vh; /* Set the maximum width for the container */
+        margin: 0 auto;
+    }
+    
+    .table-responsive {
+        max-height: 190vh;
+        max-width: 290vh; /* Set the maximum height for the table */
+        overflow-y: auto;
+    } 
+    .center-align {
+        text-align: center;
+        font-size: 20;
+    }
+  </style>  
 </head>
 <body>
-    <canvas id="myChart"></canvas>
-
+    <div  id = "iit_name" class = "bg-info center-align ">
+        
+    </div>
+    <div id="graphContainer" class = "container" >
+        <canvas id="myChart"></canvas>
+    </div>
+    <br>
+    <br>
+    <div class = "container"
+    <div class="row">
+        <div class="col">
+            <div class="card card-body">
+                <input id="search-input" class="form-control" type="text" placeholder="Type query to search">
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+        
+            <table class="table table-striped">
+              
+                    <tr class="bg-info">
+                        <th data-column="acad_prog" data-order="desc">Academic Program &#9650</th>
+                        <th data-column="opening" data-order="desc">Opening Rank &#9650</th>
+                        <th data-column="closing" data-order="desc">Closing Rank &#9650</th>
+                    </tr>
+                
+                <tbody id="myTable">
+                
+                </tbody>
+            </table>
+       
+   
+        
     <script>
         // Retrieve the JSON data passed from the view
         var graphData = {{ data_json|safe }};
-
+        
         // Extract the data
         var openingRanks = graphData.opening_ranks;
         var closingRanks = graphData.closing_ranks;
@@ -44,30 +102,45 @@
                         data: openingRanks,
                         backgroundColor: 'rgba(54, 162, 235, 0.7)',
                         borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        
                     },
                     {
                         label: 'Closing Rank',
                         data: closingRanks,
                         backgroundColor: 'rgba(255, 99, 132, 0.7)',
                         borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
+                        borderWidth: 1,
                     }
                 ]
             },
             options: {
+                maintainAspectRatio : false,
                 indexAxis : 'y',
                 scales: {
                     x: {
                         beginAtZero: true,
-                        ticks:{
-                            callback: (value , index , values) =>{return value;}
-                        },
+                        
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)',
                         }
                     },
-                    y: {
+                    y: {  
+                        ticks: {
+                            callback: function(value) {
+                                var text = this.getLabelForValue(value);
+                                var parts = text.split(/[\s()]+/); // Split the text by spaces and parentheses
+                                var programName = parts[0]; // Extract the program name (first part)
+                                var year = parts[parts.length - 2]; // Extract the year (second-to-last part)
+                                var result = programName + " " + year;
+                                return result;
+                            } ,
+                            font: {
+                                weight: 'medium-bold', // Set the font weight to bold for x-axis labels
+                                size : 10
+                            }                           
+                            
+                    },
                         grid: {
                             display: false,
                         }
@@ -75,64 +148,87 @@
                 },
                 plugins: {
                     legend: {
-                        display: false, // Disable the default legend
+                        display: true, // Disable the default legend
                     },
-                    customLegend: {
-                        display: true, // Enable the custom legend
-                        labels: {
-                            generateLabels: function(chart) {
-                                var data = chart.data;
-                                var labels = data.labels;
-                                var datasets = data.datasets;
-
-                                var legendLabels = [];
-
-                                for (var i = 0; i < labels.length; i++) {
-                                    var academicProgram = labels[i].split(' (')[0];
-                                    var year = labels[i].split('(')[1].slice(0, -1);
-                                    var backgroundColor = datasets[0].backgroundColor[i % datasets[0].backgroundColor.length];
-
-                                    var legendLabel = {
-                                        text: '',
-                                        fillStyle: backgroundColor,
-                                        hidden: false,
-                                        lineCap: 'round',
-                                        lineDash: [],
-                                        lineWidth: 1,
-                                        strokeStyle: backgroundColor,
-                                        pointStyle: 'circle',
-                                        rotation: 0,
-                                        textAlign: 'left',
-                                        verticalAlign: 'middle',
-                                        padding: 5,
-                                        fontSize: 12,
-                                        fontFamily: 'Arial',
-                                        fontStyle: 'normal',
-                                        lineHeight: 1.2,
-                                        startX: 0,
-                                        startY: 0,
-                                        x: 0,
-                                        y: 0
-                                    };
-
-                                    legendLabels.push(legendLabel);
-                                }
-
-                                return legendLabels;
-                            }
-                        }
-                    },
+                   
                     title: {
                         display: true,
                         text: `Over the years - Round ${roundNumber}, Gender: ${genderInfo}, Seat Type: ${seatTypeInfo}`,
                         font: {
-                            size: 16,
+                            size: 20,
                             weight: 'bold'
                         }
                     }
                 }
             }
         });
-    </script>
+        
+        // Create the table
+        {% comment %} const containerBody = document.querySelector('#graphContainer');
+        containerBody.style.overflowY = 'scroll';
+   {% endcomment %}
+
+        var object = [];
+        for (var i = 0; i < openingRanks.length; i++) {
+          object.push([modifiedLabels[i], openingRanks[i], closingRanks[i]]);
+        }
+
+        $('th').on('click', function(){
+            var column = $(this).data('column')
+            var order = $(this).data('order')
+            var text = $(this).html()
+            text = text.substring(0, text.length - 1)
+    
+            if(order == 'desc'){
+                $(this).data('order', "asc")
+                object = object.sort((a,b) => a[column] > b[column] ? 1 : -1)
+                text += '&#9660'
+    
+            }else{
+                $(this).data('order', "desc")
+                object = object.sort((a,b) => a[column] < b[column] ? 1 : -1)
+                text += '&#9650'
+    
+            }
+            $(this).html(text)
+            buildTable(object)
+        
+        })
+        buildTable(object);
+
+        $('#search-input').on('input', function () {
+          var value = $(this).val().toLowerCase();
+          var data = searchTable(value, object);
+          buildTable(data);
+        });
+        
+        function searchTable(value, object) {
+          var filter_object = [];
+          for (var i = 0; i < object.length; i++) {
+            var name = object[i][0].toLowerCase();
+            if (name.includes(value)) {
+              filter_object.push(object[i]);
+            }
+          }
+          return filter_object;
+        }
+        
+        function buildTable(data) {
+          var table = document.getElementById('myTable');
+          table.innerHTML = '';
+          for (var i = 0; i < data.length; i++) {
+            var tuple = data[i];
+            var row = `<tr>
+                        <td>${tuple[0]}</td>
+                        <td>${tuple[1]}</td>
+                        <td>${tuple[2]}</td>
+                      </tr>`;
+            table.innerHTML += row;
+          }
+        }
+         
+        var specificDataDiv = document.getElementById("iit_name");
+        specificDataDiv.innerHTML = graphData.iit_name;
+         </script>
 </body>
 </html>

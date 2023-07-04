@@ -7,6 +7,7 @@ from myapp.models import *
 import json
 from myapp.form import *
 from django.shortcuts import redirect
+from django.db.models import Q
 def home(request):
     return render(request, 'myapp/home.html')
 
@@ -64,8 +65,8 @@ def graph_view(request):
     insti_data = json.loads(request.session.get('insti_name'))
     gender_data = json.loads(request.session.get('gender_name'))
     seat_data = json.loads(request.session.get('seat_name'))
-    round_no = request.session.get('round_no')
-    year = request.session.get('year')
+    round_no = json.loads(request.session.get('round_no'))
+    year = json.loads(request.session.get('year'))
 
 # Extract the specific values from the JSON
     insti_pk = insti_data['pk']
@@ -73,21 +74,30 @@ def graph_view(request):
     seat_pk = seat_data['pk']
 
 # Fetch the corresponding objects from the database
+    
     seat_type = SeatType.objects.get(pk=seat_pk)
     gender = Gender.objects.get(pk=gender_pk)
     institute = Institute.objects.get(pk=insti_pk)
 
 # Print the extracted values
     print(f"Seat Type: {seat_type}, Gender: {gender}, Round: {round_no}, Year: {year}")
+    
+# Define the base query
+    query = Q()
 
+# Add filters conditionally
+    if seat_type:
+       query &= Q(seat_type=seat_type)
+    if gender:
+       query &= Q(gender=gender)
+    if round_no:
+       query &= Q(round=round_no)
+    if institute:
+       query &= Q(institute=institute)
+    if year:
+       query &= Q(year=year)
 # Fetch the corresponding program ranks from the database
-    program_ranks = ProgramRank.objects.filter(
-     seat_type=seat_type,
-     gender=gender,
-     round=round_no,
-     institute=institute,
-     year=year
-     )
+    program_ranks = ProgramRank.objects.filter(query)
 
     sorted_ranks = sorted(program_ranks, key=lambda rank: (rank.opening_rank + rank.closing_rank) / 2)
 
@@ -111,6 +121,7 @@ def graph_view(request):
     seat_type_info = seat_type.name
     data = {
         # 'object_data': object,
+        'iit_name' : insti_data['name'],
         'opening_ranks': opening_ranks,
         'closing_ranks': closing_ranks,
         'labels': labels,
@@ -132,7 +143,7 @@ def front_choice(request):
             seat_name = form.cleaned_data['seat']
             round_no = form.cleaned_data['round_no']
             year = form.cleaned_data['year']
-           
+            print(year)
             insti_data = {
                 'pk': insti_name.pk,
                 'name': insti_name.name
@@ -149,8 +160,8 @@ def front_choice(request):
             request.session['insti_name'] = json.dumps(insti_data)
             request.session['gender_name'] = json.dumps(gender_data)  # Serialize the data as JSON
             request.session['seat_name'] = json.dumps(seat_data)  # Serialize the data as JSON
-            request.session['round_no'] = round_no
-            request.session['year'] = year 
+            request.session['round_no'] = json.dumps(round_no)
+            request.session['year'] = json.dumps(year) 
 
             print("going to graph view")    
             return redirect('graph')  # Use redirect to call the graph_view function

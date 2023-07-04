@@ -10,14 +10,21 @@ ROUND_CHOICES = [
 ]
 
 YEAR_CHOICES = [
+    (2016, '2016'),
+    (2017, '2017'),
+    (2018, '2018'),
+    (2019, '2019'),
     (2020, '2020'),
     (2021, '2021'),
     (2022, '2022'),
+
 ]
 class Choices_form(forms.Form):
-    insti = forms.ModelChoiceField(queryset=Institute.objects.all())
-    # acad =  forms.CharField(widget=forms.HiddenInput(), required=False)
-    gender = forms.ModelChoiceField(queryset=Gender.objects.all())
-    seat = forms.ModelChoiceField(queryset=SeatType.objects.all())
-    round_no = forms.ChoiceField(choices= ROUND_CHOICES)
-    year = forms.ChoiceField(choices =YEAR_CHOICES )
+    insti = forms.ModelChoiceField(queryset=Institute.objects.all(),required=False)
+    acad =  forms.CharField(widget=forms.HiddenInput(), required=False)
+    gender = forms.ModelChoiceField(queryset=Gender.objects.all(),required=False)
+    seat = forms.ModelChoiceField(queryset=SeatType.objects.all(),required=False)
+    round_no = forms.ChoiceField(choices= ROUND_CHOICES,required=False)
+    year = forms.ChoiceField(choices =YEAR_CHOICES,required=False)
+    
+    
