@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: rgb(209, 238, 228);
+}
+
+h1 {
+    text-align: center;
+}
+
+#dataContainer {
+    margin-top: 30px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color:#a4a4a4;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+/* Styles for the form and dropdown boxes */
+form {
+    margin-top: 20px;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  select {
+    padding: 5px;
+    width: 200px;
+    margin-bottom: 10px;
+  }
+  
+  input[type="submit"] {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  input[type="submit"]:hover {
+    background-color: #45a049;
+  }
+    
+  .labels{
+
+    text-align: center;
+  }
+
+  .list{
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+  }
+  
+  .submit-button{
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+  }

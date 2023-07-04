@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-legend-custom@0.6.5/dist/chartjs-plugin-legend-custom.min.js"></script>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+
+    <script>
+        // Retrieve the JSON data passed from the view
+        var graphData = {{ data_json|safe }};
+
+        // Extract the data
+        var openingRanks = graphData.opening_ranks;
+        var closingRanks = graphData.closing_ranks;
+        var labels = graphData.labels;
+        // Extract additional information
+        const roundNumber = graphData.round_number;
+        const genderInfo = graphData.gender_info;
+        const seatTypeInfo = graphData.seat_type_info;
+
+        // Create the chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        // Create a new array to store the modified labels
+        var modifiedLabels = [];
+
+        // Concatenate academic program name and year for each label
+        for (var i = 0; i < labels[0].length; i++) {
+            var academicProgram = labels[0][i];
+            var year = labels[1][i];
+            modifiedLabels.push(`${academicProgram} (${year})`);
+        }
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: modifiedLabels, // Use the modified labels
+                datasets: [
+                    {
+                        label: 'Opening Rank',
+                        data: openingRanks,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Closing Rank',
+                        data: closingRanks,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                indexAxis : 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks:{
+                            callback: (value , index , values) =>{return value;}
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false,
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false, // Disable the default legend
+                    },
+                    customLegend: {
+                        display: true, // Enable the custom legend
+                        labels: {
+                            generateLabels: function(chart) {
+                                var data = chart.data;
+                                var labels = data.labels;
+                                var datasets = data.datasets;
+
+                                var legendLabels = [];
+
+                                for (var i = 0; i < labels.length; i++) {
+                                    var academicProgram = labels[i].split(' (')[0];
+                                    var year = labels[i].split('(')[1].slice(0, -1);
+                                    var backgroundColor = datasets[0].backgroundColor[i % datasets[0].backgroundColor.length];
+
+                                    var legendLabel = {
+                                        text: '',
+                                        fillStyle: backgroundColor,
+                                        hidden: false,
+                                        lineCap: 'round',
+                                        lineDash: [],
+                                        lineWidth: 1,
+                                        strokeStyle: backgroundColor,
+                                        pointStyle: 'circle',
+                                        rotation: 0,
+                                        textAlign: 'left',
+                                        verticalAlign: 'middle',
+                                        padding: 5,
+                                        fontSize: 12,
+                                        fontFamily: 'Arial',
+                                        fontStyle: 'normal',
+                                        lineHeight: 1.2,
+                                        startX: 0,
+                                        startY: 0,
+                                        x: 0,
+                                        y: 0
+                                    };
+
+                                    legendLabels.push(legendLabel);
+                                }
+
+                                return legendLabels;
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: `Over the years - Round ${roundNumber}, Gender: ${genderInfo}, Seat Type: ${seatTypeInfo}`,
+                        font: {
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
