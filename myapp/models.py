@@ -8,13 +8,23 @@ class Institute(models.Model):
     def __str__(self):
         return self.name
 
-
 class AcademicProgram(models.Model):
     name = models.CharField(max_length=100)
-    institutes = models.ManyToManyField(Institute, related_name='academic_programs')
+    institute_name = models.ForeignKey(Institute, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('institute_name','name')
 
     def __str__(self):
         return self.name
+
+
+# class AcademicProgram(models.Model):
+#     name = models.CharField(max_length=100)
+#     institutes = models.ManyToManyField(Institute, related_name='academic_programs')
+
+#     def __str__(self):
+#         return self.name
 
 
 class SeatType(models.Model):
@@ -41,8 +51,8 @@ class ProgramRank(models.Model):
     closing_rank = models.IntegerField(null=True, blank=True)
     gender = models.ForeignKey(Gender, on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = ('institute', 'academic_program', 'year', 'round', 'seat_type', 'gender','opening_rank','closing_rank')
+    # class Meta:
+    #     unique_together = ('institute', 'academic_program', 'year', 'round', 'seat_type', 'gender','opening_rank','closing_rank')
 
     def __str__(self):
         return f'{self.institute} - {self.academic_program} ({self.year})'

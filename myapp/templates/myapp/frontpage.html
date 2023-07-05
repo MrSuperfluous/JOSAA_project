@@ -7,36 +7,37 @@
       font-family: Arial, sans-serif;
       margin: 20px;
       background-color: rgb(209, 238, 228);
-  }
+    }
   
-  h1 {
+    h1 {
       text-align: center;
-  }
+    }
   
-  #dataContainer {
+    #dataContainer {
       margin-top: 30px;
-  }
+    }
   
-  table {
+    table {
       width: 100%;
       border-collapse: collapse;
-  }
+    }
   
-  th, td {
+    th, td {
       padding: 8px;
       text-align: left;
       border-bottom: 1px solid #ddd;
-  }
+    }
   
-  th {
+    th {
       background-color:#a4a4a4;
-  }
+    }
   
-  tr:hover {
+    tr:hover {
       background-color: #f5f5f5;
-  }
-  /* Styles for the form and dropdown boxes */
-  form {
+    }
+  
+    /* Styles for the form and dropdown boxes */
+    form {
       margin-top: 20px;
     }
     
@@ -63,18 +64,17 @@
       background-color: #45a049;
     }
       
-    .labels{
-  
+    .labels {
       text-align: center;
     }
   
-    .list{
+    .list {
       text-align: center;
       margin: 0 auto;
       display: block;
     }
     
-    .submit-button{
+    .submit-button {
       text-align: center;
       display: block;
       margin: 0 auto;
@@ -84,14 +84,14 @@
 <body>
   <h1>JOSAA Data Analysis Portal</h1>
   
-  <form id="your-form-id"  method="post" action="{% url 'front_choice' %}">
+  <form id="your-form-id">
     {% csrf_token %}
     <div>
       <label for="id_institute">Institute:</label>
-      <select name="insti" id="id_insti_choice" onchange="updateAcademicProgram(this)">
+      <select name="insti" id="id_insti_choice" onchange="updateAcademicProgram()">
         <option value="">Select</option>
         {% for inst in form.insti.field.queryset %}
-          <option value="{{ inst.pk}}">{{ inst.name }}</option>
+          <option value="{{ inst.pk }}">{{ inst.name }}</option>
         {% endfor %}
       </select>
     </div>
@@ -100,16 +100,8 @@
       <label for="id_academic">Academic Program:</label>
       <select name="acad" id="id_acad_choice">
         <option value="">Select</option>
-        {% if form.insti.value %}
-          {% for acad in form.insti.value.academic_programs.all %}
-            <option value="{{ acad.pk }}">{{ acad.name }}</option>
-          {% endfor %}
-        {% endif %}
       </select>
     </div>
-    
-    
-    
     
     <div>
       <label for="id_gender">Gender:</label>
@@ -153,37 +145,72 @@
     
     <button type="submit">Submit</button>
   </form>
+  
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
-    function updateAcademicProgram(selectElement) {
-      var selectedOption = selectElement.options[selectElement.selectedIndex];
-      var selectedValue = selectedOption.value;
-      var selectedInstitute = {
-        pk: selectedValue,
-        name: selectedOption.text
-      };
-  
-      document.getElementById('id_selected_academic_program').value = selectedValue;
-  
-      // Serialize the selected institute object to JSON
-      var jsonData = JSON.stringify(selectedInstitute);
-  
-      // Send the form data via AJAX
-      $.ajax({
-        url: '{% url 'front_choice' %}',
-        type: 'POST',
-        data: {
-          csrfmiddlewaretoken: '{{ csrf_token }}',
-          insti: jsonData
-        },
-        success: function(response) {
-          // Handle the success response
-        },
-        error: function(xhr, textStatus, error) {
-          // Handle the error
-        }
-      });
+    // Attach an event listener to the institute select element
+    $("#id_insti_choice").on("change", updateAcademicProgram);
+
+    function updateAcademicProgram() {
+      var instituteId = $("#id_insti_choice").val();
+      var academicSelect = $("#id_acad_choice");
+
+      // Clear the academic program dropdown
+      academicSelect.html('<option value="">Select</option>');
+
+      // Check if an institute is selected
+      if (instituteId) {
+        // Send an AJAX request to fetch academic programs for the selected institute
+        $.ajax({
+          url: "/myapp/get_academic_programs",
+          type: "GET",
+          data: {
+            institute_id: instituteId
+          },
+          success: function (response) {
+            //console.log(response);
+            var academicPrograms = response;
+
+            // Populate the academic program dropdown with the fetched data
+            academicPrograms.forEach(function (program) {
+              
+              var option = $("<option>");
+              option.val(program.pk);
+              option.text(program.name);
+              academicSelect.append(option);
+            });
+          },
+          error: function (xhr, textStatus, error) {
+            // Handle the error
+            console.log(error);
+          }
+        });
+      }
     }
+
+    $(document).ready(function () {
+      $("#your-form-id").on("submit", function (event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+        
+        // Serialize the form data
+        var formData = $(this).serialize();
+        
+        // Send the form data via AJAX
+        $.ajax({
+          url: "{% url 'front_choice' %}",
+          type: "POST",
+          data: formData,
+          success: function (response) {
+            // Handle the success response
+            window.location.href = "{% url 'graph' %}";
+          },
+          error: function (xhr, textStatus, error) {
+            // Handle the error
+            console.log(error);
+          }
+        });
+      });
+    });
   </script>
-  </body>
+</body>
 </html>
