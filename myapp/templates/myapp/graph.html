@@ -6,6 +6,25 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-legend-custom@0.6.5/dist/chartjs-plugin-legend-custom.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" >
+          <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'front_choice' %}">Home</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="{% url 'graph' %}">Graph</a>
+                {% comment %} <a class="nav-link" href="#">Front choice</a> {% endcomment %}
+                <a class="nav-link active" aria-current="page" href="{% url 'branch_list' %}">Branch list</a>
+                <a class="nav-link active" aria-current="page" href="{% url 'payment' %}">Donate</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+        </header><div class="ss">
+       
   <style>
     #graphContainer {
         height: 1200px; /* Set the width for the graph */
@@ -47,10 +66,7 @@
             </div>
         </div>
     </div>
-</div>
-    
-    
-        
+</div> 
             <table class="table table-striped">
               
                     <tr class="bg-info">
@@ -65,8 +81,7 @@
                 </tbody>
             </table>
        
-   
-        
+       
     <script>
         // Retrieve the JSON data passed from the view
         var graphData = {{ data_json|safe }};

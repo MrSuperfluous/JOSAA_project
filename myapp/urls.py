@@ -10,6 +10,8 @@ urlpatterns = [
     path('branch_list/',views.branch_list,name = 'branch_list'),
     path('get_academic_programs', views.get_academic_programs, name='get_academic_programs'),
     path('get_branch', views.get_branch, name='get_branch'),
+    path('donate/success' , views.success , name='success'),
+    path('donate/' , views.pay , name='payment')
     # path('myapp/', include('myapp.urls')),
     
 ]

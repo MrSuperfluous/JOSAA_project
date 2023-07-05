@@ -9,7 +9,24 @@ from myapp.form import *
 from django.shortcuts import redirect
 from django.db.models import Q
 from django.http import JsonResponse
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
 
+def pay(request):
+    if request.method == "POST":
+        name = request.POST.get('name')
+        amount = 50000
+
+        client = razorpay.Client(
+            auth=("rzp_test_ggd2QsI33BOUVO", "6g2xJgEhYuyZEs1PA3bNCV8S"))
+
+        payment = client.order.create({'amount': amount, 'currency': 'INR',
+                                       'payment_capture': '0'})
+    return render(request, 'myapp/payment_2.html')
+
+@csrf_exempt
+def success(request):
+    return render(request, "myapp/payment_3.html")
 
 def get_academic_programs(request):
     institute_id = request.GET.get("institute_id")
