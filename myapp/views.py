@@ -199,4 +199,20 @@ def front_choice(request):
         form = Choices_form()
         
     return render(request, 'myapp/frontpage.html', {'form': form})
+
+def branch_list(request):
+    if request.method == 'POST':
+        form = Branch_form(request.POST) 
+    form = Branch_form()    
+    return render(request, 'myapp/branch.html',{'form':form})
+
+def get_branch(request):
+    institute_id = request.GET.get("institute_id")
+    try:
+        institute = Institute.objects.get(id=institute_id)
+        academic_programs = AcademicProgram.objects.filter(institute_name=institute)
+        academic_programs_data = [program.name for program in academic_programs]
+        return JsonResponse(academic_programs_data, safe=False)
+    except Institute.DoesNotExist:
+        return JsonResponse([], safe=False)
     

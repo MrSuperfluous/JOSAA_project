@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Academic Program Lookup</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-legend-custom@0.6.5/dist/chartjs-plugin-legend-custom.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script>
+    $(document).ready(function() {
+      $("#institute-name").on("change", function() {
+        var instituteId = $(this).val();
+        // Check if an institute is selected
+        if (instituteId) {
+          // Send an AJAX request to fetch academic programs for the selected institute
+          $.ajax({
+            url: "/myapp/get_branch",
+            type: "GET",
+            data: {
+              institute_id: instituteId
+            },
+            success: function(response) {
+              var academicPrograms = response;
+              var uniqueArray = Array.from(new Set(academicPrograms));
+              // Build the table with the fetched data
+              var table = document.getElementById('myTable');
+              table.innerHTML = '';
+              for (var i = 0; i < uniqueArray.length; i++) {
+                var data = uniqueArray[i]; 
+                var row = `<tr>
+                            <td>${data}</td> 
+                          </tr>`;
+                table.innerHTML += row;
+              }
+            },
+            error: function(xhr, textStatus, error) {
+              // Handle the error
+              console.log(error);
+            }
+          });
+        } else {
+          // Clear the table if no institute is selected
+          $("#academic-program-table").empty();
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1><center>Academic Program Lookup</h1>
+  
+  <form>
+    <label for="institute-name">Select Institute:</label>
+    <select id="institute-name">
+      <option value="">Select</option>
+      {% for inst in form.insti.field.queryset %}
+      <option value="{{ inst.pk}}">{{ inst.name }}</option>
+    {% endfor %}
+    </select>
+  </form>
+
+  <div id="academic-program-table">
+    <table class="table table-striped">          
+    <tr class="bg-info">
+        <th data-column="acad_prog" data-order="desc">Academic Program List</th>
+    </tr>
+<tbody id="myTable">
+</tbody>
+</table>
+  </div>
+</body>
+</html>

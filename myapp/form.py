@@ -27,4 +27,5 @@ class Choices_form(forms.Form):
     round_no = forms.ChoiceField(choices= ROUND_CHOICES,required=False)
     year = forms.ChoiceField(choices =YEAR_CHOICES,required=False)
     
-    
+class Branch_form(forms.Form):
+     insti = forms.ModelChoiceField(queryset=Institute.objects.all(),required=False)  
