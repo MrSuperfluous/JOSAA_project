@@ -2,6 +2,8 @@ from django.urls import path
 from django.urls import include
 from django.views.static import serve
 from django.conf.urls import url
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -13,6 +15,7 @@ urlpatterns = [
     path('get_academic_programs', views.get_academic_programs, name='get_academic_programs'),
     path('get_branch', views.get_branch, name='get_branch'),
     # path('myapp/', include('myapp.urls')),
-    url(r'^media/(?P<path>.*)$', serve,{'document_root':       settings.MEDIA_ROOT}), 
+    url(r'^media/(?P<path>.*)$', serve,{'document_root':  settings.MEDIA_ROOT}), 
     url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}), 
 ]
+urlpatterns = urlpatterns+static(settings.MEDIA_URL,document_root = settings.MEDIA_ROOT)
