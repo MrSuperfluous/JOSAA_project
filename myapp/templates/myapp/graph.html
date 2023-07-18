@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-legend-custom@0.6.5/dist/chartjs-plugin-legend-custom.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" >
+          <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'front_choice' %}">Home</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-link active" aria-current="page" href="{% url 'graph' %}">Graph</a>
+                {% comment %} <a class="nav-link" href="#">Front choice</a> {% endcomment %}
+                <a class="nav-link active" aria-current="page" href="{% url 'branch_list' %}">Branch list</a>
+                <a class="nav-link active" aria-current="page" href="{% url 'payment' %}">Donate</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+        </header><div class="ss">
+       
+  <style>
+    #graphContainer {
+        height: 1200px; /* Set the width for the graph */
+        max-height: 1800px; /* Set the maximum width for the graph */
+        overflow-y:scroll;
+    }
+    
+    .container {
+        width: 80vw; /* Set the width for the container */
+        max-width: 290vh; /* Set the maximum width for the container */
+        margin: 0 auto;
+    }
+    
+    .table-responsive {
+        max-height: 190vh;
+        max-width: 290vh; /* Set the maximum height for the table */
+        overflow-y: auto;
+    } 
+    .center-align {
+        text-align: center;
+        font-size: 20;
+    }
+  </style>  
+</head>
+<body>
+    <div  id = "iit_name" class = "bg-info center-align ">
+        
+    </div>
+    <div id="graphContainer" class = "container" >
+        <canvas id="myChart"></canvas>
+    </div>
+    <br>
+    <br>
+    <div class = "container"
+    <div class="row">
+        <div class="col">
+            <div class="card card-body">
+                <input id="search-input" class="form-control" type="text" placeholder="Type query to search">
+            </div>
+        </div>
+    </div>
+</div> 
+            <table class="table table-striped">
+              
+                    <tr class="bg-info">
+                        <th data-column="acad_prog" data-order="desc">Academic Program &#9650</th>
+                        <th data-column="round_no" data-order="desc">Round &#9650</th>       
+                        <th data-column="opening" data-order="desc">Opening Rank &#9650</th>
+                        <th data-column="closing" data-order="desc">Closing Rank &#9650</th>
+                    </tr>
+                
+                <tbody id="myTable">
+                
+                </tbody>
+            </table>
+       
+       
+    <script>
+        // Retrieve the JSON data passed from the view
+        var graphData = {{ data_json|safe }};
+        
+        // Extract the data
+        var openingRanks = graphData.opening_ranks;
+        var closingRanks = graphData.closing_ranks;
+        var labels = graphData.labels;
+        var round_ar = graphData.round_ar;
+        // Extract additional information
+        const roundNumber = graphData.round_number;
+        const genderInfo = graphData.gender_info;
+        const seatTypeInfo = graphData.seat_type_info;
+
+        // Create the chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+
+        // Create a new array to store the modified labels
+        var modifiedLabels = [];
+
+        // Concatenate academic program name and year for each label
+        for (var i = 0; i < labels[0].length; i++) {
+            var academicProgram = labels[0][i];
+            var year = labels[1][i];
+          
+            modifiedLabels.push(`${academicProgram} (${year})`);
+        }
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: modifiedLabels, // Use the modified labels
+                datasets: [
+                    {
+                        label: 'Opening Rank',
+                        data: openingRanks,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        
+                    },
+                    {
+                        label: 'Closing Rank',
+                        data: closingRanks,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio : false,
+                indexAxis : 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                        }
+                    },
+                    y: {  
+                        ticks: {
+                            callback: function(value) {
+                                var text = this.getLabelForValue(value);
+                                var parts = text.split(/[\s()]+/); // Split the text by spaces and parentheses
+                                var programName = parts[0]; // Extract the program name (first part)
+                                var year = parts[parts.length - 2]; // Extract the year (second-to-last part)
+                                var result = programName + " " + year;
+                                return result;
+                            } ,
+                            font: {
+                                weight: 'medium-bold', // Set the font weight to bold for x-axis labels
+                                size : 10
+                            }                           
+                            
+                    },
+                        grid: {
+                            display: false,
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true, // Disable the default legend
+                    },
+                   
+                    title: {
+                        display: true,
+                        text: `Over the years - Round ${roundNumber}, Gender: ${genderInfo}, Seat Type: ${seatTypeInfo}`,
+                        font: {
+                            size: 20,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Create the table
+        {% comment %} const containerBody = document.querySelector('#graphContainer');
+        containerBody.style.overflowY = 'scroll';
+   {% endcomment %}
+
+        var object = [];
+        for (var i = 0; i < openingRanks.length; i++) {
+          object.push([modifiedLabels[i],round_ar[i] ,openingRanks[i], closingRanks[i]]);
+        }
+
+        $('th').on('click', function(){
+            var column = $(this).data('column');
+            var order = $(this).data('order');
+            var text = $(this).html();
+            text = text.substring(0, text.length - 1);
+        
+            if (order == 'desc') {
+                $(this).data('order', 'asc');
+                object = object.sort((a, b) => a[column] > b[column] ? 1 : -1);
+                text += '▼';
+        
+            } else {
+                $(this).data('order', 'desc');
+                object = object.sort((a, b) => a[column] < b[column] ? 1 : -1);
+                text += '▲';
+        
+            }
+            $(this).html(text);
+            buildTable(object);
+        });
+         buildTable(object);
+
+        $('#search-input').on('input', function () {
+          var value = $(this).val().toLowerCase();
+          var data = searchTable(value, object);
+          buildTable(data);
+        });
+        
+        function searchTable(value, object) {
+          var filter_object = [];
+          for (var i = 0; i < object.length; i++) {
+            var name = object[i][0].toLowerCase();
+            if (name.includes(value)) {
+              filter_object.push(object[i]);
+            }
+          }
+          return filter_object;
+        }
+        
+        function buildTable(data) {
+          var table = document.getElementById('myTable');
+          table.innerHTML = '';
+          for (var i = 0; i < data.length; i++) {
+            var tuple = data[i];
+            var row = `<tr>
+                        <td>${tuple[0]}</td>
+                        <td>${tuple[1]}</td>
+                        <td>${tuple[2]}</td>
+                        <td>${tuple[3]}</td>
+                      </tr>`;
+            table.innerHTML += row;
+          }
+        }
+         
+        var specificDataDiv = document.getElementById("iit_name");
+        specificDataDiv.innerHTML = graphData.iit_name;
+         </script>
+</body>
+</html>
